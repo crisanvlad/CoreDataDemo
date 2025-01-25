@@ -11,7 +11,9 @@ import SwiftUI
 struct CoreDataDemoApp: App {
     var body: some Scene {
         WindowGroup {
-            MovieScreen(viewModel: MovieViewModel(movieInteractor: DefaultMovieInteractor()))
+            NavigationStack {
+                MovieScreen(viewModel: MovieViewModel(movieInteractor: DefaultMovieInteractor()))
+            }
         }
     }
 }

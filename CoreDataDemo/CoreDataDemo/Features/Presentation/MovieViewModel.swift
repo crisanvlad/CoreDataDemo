@@ -6,6 +6,7 @@
 //
 
 import Combine
+import CoreData
 import Foundation
 
 final class MovieViewModel: ObservableObject {
@@ -13,6 +14,11 @@ final class MovieViewModel: ObservableObject {
     
     @Published var movieName: String = .init()
     @Published var movies: [Movie] = []
+    
+    // There is an to use NSManagedObjectID to identify the managed object instance
+//    @Published var selectedMovieIDs: Set<NSManagedObjectID> = []
+    
+    @Published var selectedMovies: Set<Movie> = []
     @Published var error: String?
     
     // MARK: - Dependencies
@@ -54,7 +60,20 @@ final class MovieViewModel: ObservableObject {
                 self.error = error.localizedDescription
             }
         }
-        
+    }
+    
+    func deleteMovies() {
+        do {
+            try movieInteractor.deleteMovies(Array(selectedMovies))
+            selectedMovies.removeAll()
+            fetchAllMovies()
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+    
+    func cancelMultipleEdit() {
+        selectedMovies.removeAll()
     }
     
     // MARK: - Private Methods

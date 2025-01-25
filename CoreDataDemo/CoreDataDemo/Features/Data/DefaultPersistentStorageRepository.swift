@@ -50,8 +50,9 @@ final class DefaultPersistentStorageRepository: PersistentStorageRepository {
         try saveContext()
     }
     
-    func deleteMovie(named: String) throws {
-        // Implement a way to delete a movie based on its ID
+    func deleteMovies(_ movies: [Movie]) throws {
+        movies.forEach { persistentContainer.viewContext.delete($0) }
+        try saveContext()
     }
     
     // MARK: - Private methods

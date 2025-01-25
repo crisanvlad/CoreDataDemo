@@ -11,5 +11,5 @@ protocol PersistentStorageRepository {
     func createMovie(name: String) throws
     func readAllMovies() throws -> [Movie]
     func deleteMovie(_ movie: Movie) throws
-    func deleteMovie(named: String) throws
+    func deleteMovies(_ movies: [Movie]) throws
 }

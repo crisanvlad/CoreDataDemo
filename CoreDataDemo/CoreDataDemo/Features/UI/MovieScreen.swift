@@ -8,6 +8,10 @@
 import SwiftUI
 
 struct MovieScreen: View {
+    // MARK: - State Properties
+    
+    @State private var editMode: EditMode = .inactive
+    
     // MARK: - Dependencies
     
     @StateObject private var viewModel: MovieViewModel
@@ -28,6 +32,33 @@ struct MovieScreen: View {
             Spacer()
         }
         .padding()
+        .navigationTitle("Movies")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                if editMode == .active {
+                    Button("", systemImage: "trash") {
+                        viewModel.deleteMovies()
+                        editMode = .inactive
+                    }
+                    .tint(.red)
+                }
+                if editMode == .inactive {
+                    Button("Edit") {
+                        editMode = .active
+                    }
+                }
+            }
+            
+            if editMode == .active {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") {
+                        editMode = .inactive
+                        viewModel.cancelMultipleEdit()
+                    }
+                }
+            }
+        }
+        .environment(\.editMode, $editMode)
     }
     
     // MARK: - Subviews
@@ -61,15 +92,16 @@ struct MovieScreen: View {
                 Text("No Movies")
                     .frame(maxWidth: .infinity)
             } else {
-                List {
+                List(selection: $viewModel.selectedMovies) {
+                    // we can use \.objectID with NSManagedObjectID for unique id
                     ForEach(viewModel.movies, id: \.self) { movie in
                         if let movieName = movie.name {
                             Text(movieName)
                         }
                     }
-                    .onDelete { indexSet in
-                        viewModel.deleteMovie(atIndex: indexSet)
-                    }
+                    .onDelete(perform: editMode == .inactive ? { offsets in
+                        viewModel.deleteMovie(atIndex: offsets)
+                    } : nil)
                 }
                 .listStyle(.plain)
             }
@@ -78,7 +110,9 @@ struct MovieScreen: View {
 }
 
 #Preview {
-    MovieScreen(
-        viewModel: MovieViewModel(movieInteractor: DefaultMovieInteractor())
-    )
+    NavigationStack {
+        MovieScreen(
+            viewModel: MovieViewModel(movieInteractor: DefaultMovieInteractor())
+        )
+    }
 }
