@@ -8,5 +8,5 @@
 import Foundation
 
 protocol PersistentStorageRepository {
-    
+    func createMovie(name: String) throws
 }
