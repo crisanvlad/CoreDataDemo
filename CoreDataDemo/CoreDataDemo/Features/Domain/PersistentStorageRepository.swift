@@ -6,8 +6,12 @@
 //
 
 import Foundation
+import CoreData
 
 protocol PersistentStorageRepository {
+    // Used only for the purpose of testing FetchRequest in SwiftUI Views
+    var persistenContainerViewCotnext: NSManagedObjectContext {get}
+    
     func createMovie(name: String) throws
     func readAllMovies() throws -> [Movie]
     func deleteMovie(_ movie: Movie) throws

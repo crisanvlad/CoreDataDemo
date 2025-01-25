@@ -32,6 +32,10 @@ final class DefaultPersistentStorageRepository: PersistentStorageRepository {
     
     // MARK: - PersistentStorageRepository conformance
     
+    var persistenContainerViewCotnext: NSManagedObjectContext {
+        persistentContainer.viewContext
+    }
+    
     func createMovie(name: String) throws {
         // Create Movie entity on main thread MOC (i.e view context)
         let _ = Movie(

@@ -48,3 +48,13 @@ extension Movie {
         self.rating = rating
     }
 }
+
+// MARK: - Static Fetch Requests
+
+extension Movie {
+    static var moviesByRating: NSFetchRequest<Movie> = {
+        let request: NSFetchRequest<Movie> = Movie.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \Movie.rating, ascending: false)]
+        return request
+    }()
+}

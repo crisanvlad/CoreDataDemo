@@ -11,8 +11,18 @@ import SwiftUI
 struct CoreDataDemoApp: App {
     var body: some Scene {
         WindowGroup {
-            NavigationStack {
-                MovieScreen(viewModel: MovieViewModel(movieInteractor: DefaultMovieInteractor()))
+            TabView {
+                Tab("Movies", systemImage: "film") {
+                    NavigationStack {
+                        MovieScreen(viewModel: MovieViewModel(movieInteractor: DefaultMovieInteractor()))
+                    }
+                }
+                Tab("TopMovies", systemImage: "flag.pattern.checkered") {
+                    NavigationStack {
+                        TopMoviesScreen()
+                            .environment(\.managedObjectContext, AppContext.shared.persistentStorageRepository.persistenContainerViewCotnext)
+                    }
+                }
             }
         }
     }
