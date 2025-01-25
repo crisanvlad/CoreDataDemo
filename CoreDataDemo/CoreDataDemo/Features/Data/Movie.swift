@@ -65,3 +65,22 @@ extension Movie {
         return request
     }()
 }
+
+extension Movie {
+    static func mockData(in context: NSManagedObjectContext) -> [Movie] {
+        var result: [Movie] = []
+        for idx in 0 ..< Int.random(in: 5 ... 10) {
+            result.append(
+                Movie(
+                    releaseDate: Date(),
+                    name: "Movie_\(idx)",
+                    duration: Int64.random(in: 0 ..< 10),
+                    watched: Bool.random(),
+                    rating: Double.random(in: 0 ... 5),
+                    context: context
+                )
+            )
+        }
+        return result
+    }
+}

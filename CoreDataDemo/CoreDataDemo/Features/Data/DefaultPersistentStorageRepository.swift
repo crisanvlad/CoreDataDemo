@@ -19,10 +19,15 @@ final class DefaultPersistentStorageRepository: PersistentStorageRepository {
     
     private let persistentContainer: NSPersistentContainer
     
+    // MARK: - Private Properties
+    
+    private lazy var backgroundContext = persistentContainer.newBackgroundContext()
+    
     // MARK: - Init
     
     init() {
         persistentContainer = NSPersistentContainer(name: Constants.persistentContainerName)
+        persistentContainer.viewContext.automaticallyMergesChangesFromParent = true
         persistentContainer.loadPersistentStores { /* persistentStoreDescription */ _, error in
             if let error {
                 fatalError("Core Data Store failed to load with error: \(error)")
@@ -32,7 +37,7 @@ final class DefaultPersistentStorageRepository: PersistentStorageRepository {
     
     // MARK: - PersistentStorageRepository conformance
     
-    var persistentContainerViewCotnext: NSManagedObjectContext {
+    var persistentContainerViewContext: NSManagedObjectContext {
         persistentContainer.viewContext
     }
     
@@ -47,6 +52,12 @@ final class DefaultPersistentStorageRepository: PersistentStorageRepository {
             context: persistentContainer.viewContext
         )
         try saveContext()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+            guard let self else { return }
+            let _ = Movie.mockData(in: persistentContainerViewContext)
+            try? saveContext()
+        }
     }
     
     func readAllMovies() throws -> [Movie] {
@@ -74,6 +85,11 @@ final class DefaultPersistentStorageRepository: PersistentStorageRepository {
         try saveContext()
     }
     
+    func deleteAllMovies() throws {
+        let movies = try readAllMovies()
+        try movies.forEach { try deleteMovie($0) }
+    }
+    
     // MARK: - Private methods
     
     private func saveContext() throws {
@@ -85,5 +101,37 @@ final class DefaultPersistentStorageRepository: PersistentStorageRepository {
             persistentContainer.viewContext.rollback()
             throw error
         }
+    }
+    
+    func fetch(_ completion: @escaping () -> Void) {
+        persistentContainer.performBackgroundTask { [weak self] _ in
+            let request: NSFetchRequest<NSManagedObjectID> = NSFetchRequest(entityName: "Movie")
+            // request.sortDescriptors = [NSSortDescriptor(keyPath: \ToDoItem.dueDate, ascending: true)]
+            // request.propertiesToFetch = ["dueDate"]
+            request.resultType = .managedObjectIDResultType
+            
+//            self?.fetchedIDs = (try? context.fetch(request)) ?? []
+            
+            completion()
+        }
+    }
+    
+    func fetchToDoItems(dueBefore: Date, in context: NSManagedObjectContext, _ completion: @escaping ([Movie]) -> Void) {
+        context.perform {
+            let request: NSFetchRequest<Movie> = Movie.fetchRequest()
+            request.predicate = NSPredicate(format: "%K < %@", #keyPath(Movie.releaseDate), dueBefore as NSDate)
+            let items = try? context.fetch(request)
+            completion(items ?? [])
+        }
+    }
+    
+    func fetchToDoItems(dueBefore: Date, in context: NSManagedObjectContext) -> [Movie] {
+        var items: [Movie]?
+        context.performAndWait {
+            let request: NSFetchRequest<Movie> = Movie.fetchRequest()
+            request.predicate = NSPredicate(format: "%K < %@", #keyPath(Movie.releaseDate), dueBefore as NSDate)
+            items = try? context.fetch(request)
+        }
+        return items ?? []
     }
 }

@@ -41,4 +41,8 @@ struct DefaultMovieInteractor: MovieInteractor {
     func deleteMovies(_ movies: [Movie]) throws {
         try persistentStorageRepository.deleteMovies(movies)
     }
+    
+    func deleteAllMovies() throws {
+        try persistentStorageRepository.deleteAllMovies()
+    }
 }

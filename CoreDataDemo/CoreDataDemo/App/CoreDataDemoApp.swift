@@ -20,7 +20,7 @@ struct CoreDataDemoApp: App {
                 Tab("TopMovies", systemImage: "flag.pattern.checkered") {
                     NavigationStack {
                         TopMoviesScreen()
-                            .environment(\.managedObjectContext, AppContext.shared.persistentStorageRepository.persistentContainerViewCotnext)
+                            .environment(\.managedObjectContext, AppContext.shared.persistentStorageRepository.persistentContainerViewContext)
                     }
                 }
             }

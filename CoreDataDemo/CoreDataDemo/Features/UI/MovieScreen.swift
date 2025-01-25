@@ -36,6 +36,9 @@ struct MovieScreen: View {
         .padding()
         .navigationTitle("Movies")
         .navigationBarTitleDisplayMode(.inline)
+        .refreshable {
+            viewModel.refresh()
+        }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 if editMode == .active {
@@ -93,9 +96,15 @@ struct MovieScreen: View {
     @ViewBuilder
     private var listMoviesView: some View {
         VStack(alignment: .leading) {
-            Text("Display Movies List")
-                .font(.title2)
-                .padding(.bottom, 10)
+            HStack(alignment: .lastTextBaseline) {
+                Text("Display Movies List")
+                    .font(.title2)
+                    .padding(.bottom, 10)
+                Spacer()
+                Button("Delete All") {
+                    viewModel.deleteAllMovies()
+                }
+            }
             if viewModel.movies.isEmpty {
                 Text("No Movies")
                     .frame(maxWidth: .infinity)

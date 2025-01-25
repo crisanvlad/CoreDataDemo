@@ -82,6 +82,19 @@ final class MovieViewModel: ObservableObject {
         selectedMovies.removeAll()
     }
     
+    func refresh() {
+        fetchAllMovies()
+    }
+    
+    func deleteAllMovies() {
+        do {
+            try movieInteractor.deleteAllMovies()
+            fetchAllMovies()
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+    
     // MARK: - Private Methods
     
     private func subscribeToSearch() {
