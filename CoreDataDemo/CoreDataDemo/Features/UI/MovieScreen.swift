@@ -95,9 +95,7 @@ struct MovieScreen: View {
                 List(selection: $viewModel.selectedMovies) {
                     // we can use \.objectID with NSManagedObjectID for unique id
                     ForEach(viewModel.movies, id: \.self) { movie in
-                        if let movieName = movie.name {
-                            Text(movieName)
-                        }
+                        Text(movie.name)
                     }
                     .onDelete(perform: editMode == .inactive ? { offsets in
                         viewModel.deleteMovie(atIndex: offsets)

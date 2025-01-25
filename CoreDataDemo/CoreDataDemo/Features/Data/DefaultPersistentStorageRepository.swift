@@ -34,8 +34,14 @@ final class DefaultPersistentStorageRepository: PersistentStorageRepository {
     
     func createMovie(name: String) throws {
         // Create Movie entity on main thread MOC (i.e view context)
-        let movie = Movie(context: persistentContainer.viewContext)
-        movie.name = name
+        let _ = Movie(
+            releaseDate: Date(),
+            name: name,
+            duration: Int64.random(in: 1..<4),
+            watched: Bool.random(),
+            rating: Double.random(in: 0..<5),
+            context: persistentContainer.viewContext
+        )
         try saveContext()
     }
     
