@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct TopMoviesScreen: View {
+    @State private var searchText = String()
+
     @FetchRequest(fetchRequest: Movie.moviesByRating)
     private var movies: FetchedResults<Movie>
 
@@ -15,6 +17,13 @@ struct TopMoviesScreen: View {
     private var releaseMovies: SectionedFetchResults<Date, Movie>
 
     var body: some View {
+        topRatedMovies
+        moviesBySection
+    }
+
+    // MARK: - Subviews
+
+    private var topRatedMovies: some View {
         VStack(alignment: .leading, spacing: 5) {
             Text("Top Rated Movies")
                 .padding()
@@ -28,7 +37,19 @@ struct TopMoviesScreen: View {
             }
         }
         .padding()
+        .searchable(text: $searchText)
+        .onChange(of: searchText) { _, newValue in
+            // This normally should be debounced somewhere
+            guard !newValue.isEmpty else {
+                movies.nsPredicate = nil
+                return
+            }
 
+            movies.nsPredicate = NSPredicate(format: "%K CONTAINS[cd] %@", argumentArray: [#keyPath(Movie.name), newValue])
+        }
+    }
+
+    private var moviesBySection: some View {
         VStack(alignment: .leading, spacing: 5) {
             Text("Movies by release date")
                 .padding()
