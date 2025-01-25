@@ -57,4 +57,11 @@ extension Movie {
         request.sortDescriptors = [NSSortDescriptor(keyPath: \Movie.rating, ascending: false)]
         return request
     }()
+
+    static var moviesByReleaseDate: NSFetchRequest<Movie> = {
+        let request: NSFetchRequest<Movie> = Movie.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \Movie.releaseDate, ascending: false)]
+
+        return request
+    }()
 }
