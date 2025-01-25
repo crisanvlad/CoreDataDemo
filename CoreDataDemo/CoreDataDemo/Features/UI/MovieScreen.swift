@@ -21,6 +21,17 @@ struct MovieScreen: View {
     // MARK: - Body
     
     var body: some View {
+        VStack(alignment: .leading) {
+            addMovieView
+                .padding(.bottom, 30)
+            listMoviesView
+        }
+        .padding()
+    }
+    
+    // MARK: - Subviews
+    
+    private var addMovieView: some View {
         VStack(spacing: 20) {
             TextField("Type movie name", text: $viewModel.movieName)
                 .padding()
@@ -28,7 +39,7 @@ struct MovieScreen: View {
                     RoundedRectangle(cornerRadius: 10)
                         .fill(.quinary)
                 }
-                
+            
             Button("Save Movie") {
                 viewModel.saveMovie()
             }
@@ -37,10 +48,29 @@ struct MovieScreen: View {
                 Text("Error: \(error)")
             }
         }
-        .padding()
     }
     
-    // MARK: - Subviews
+    @ViewBuilder
+    private var listMoviesView: some View {
+        VStack(alignment: .leading) {
+            Text("Movies List")
+                .font(.title2)
+                .padding(.bottom, 10)
+            if viewModel.movies.isEmpty {
+                Text("No Movies")
+                    .frame(maxWidth: .infinity)
+            } else {
+                List {
+                    ForEach(viewModel.movies, id: \.self) { movie in
+                        if let movieName = movie.name {
+                            Text(movieName)
+                        }
+                    }
+                }
+                .listStyle(.plain)
+            }
+        }
+    }
 }
 
 #Preview {

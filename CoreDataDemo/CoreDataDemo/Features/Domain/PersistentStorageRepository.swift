@@ -9,4 +9,5 @@ import Foundation
 
 protocol PersistentStorageRepository {
     func createMovie(name: String) throws
+    func readAllMovies() throws -> [Movie]
 }

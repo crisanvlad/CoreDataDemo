@@ -12,6 +12,7 @@ final class MovieViewModel: ObservableObject {
     // MARK: - Published Properties
     
     @Published var movieName: String = .init()
+    @Published var movies: [Movie] = []
     @Published var error: String?
     
     // MARK: - Dependencies
@@ -24,6 +25,7 @@ final class MovieViewModel: ObservableObject {
         movieInteractor: any MovieInteractor
     ) {
         self.movieInteractor = movieInteractor
+        fetchAllMovies()
     }
     
     // MARK: - Internal Methods
@@ -36,6 +38,17 @@ final class MovieViewModel: ObservableObject {
         }
         do {
             try movieInteractor.saveMovie(name: movieName)
+            movies = try movieInteractor.getAllMovies()
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+    
+    // MARK: - Private Methods
+    
+    private func fetchAllMovies() {
+        do {
+            movies = try movieInteractor.getAllMovies()
         } catch {
             self.error = error.localizedDescription
         }

@@ -9,4 +9,5 @@ import Foundation
 
 protocol MovieInteractor {
     func saveMovie(name: String) throws
+    func getAllMovies() throws -> [Movie]
 }

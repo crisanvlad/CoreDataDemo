@@ -33,10 +33,23 @@ final class DefaultPersistentStorageRepository: PersistentStorageRepository {
     // MARK: - PersistentStorageRepository conformance
     
     func createMovie(name: String) throws {
+        // Create Movie entity on main thread MOC (i.e view context)
         let movie = Movie(context: persistentContainer.viewContext)
         movie.name = name
-            
-        try persistentContainer.viewContext.save()
-        print("Movie saved succesfully")
+        
+        do {
+            // Save Movie entity in Core Data
+            try persistentContainer.viewContext.save()
+            print("Movie saved successfully")
+        } catch {
+            // In case of error, discard current MOC
+            persistentContainer.viewContext.rollback()
+            throw error
+        }
+    }
+    
+    func readAllMovies() throws -> [Movie] {
+        let movieFetchRequest: NSFetchRequest<Movie> = Movie.fetchRequest()
+        return try persistentContainer.viewContext.fetch(movieFetchRequest)
     }
 }

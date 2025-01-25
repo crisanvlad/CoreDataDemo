@@ -25,4 +25,8 @@ struct DefaultMovieInteractor: MovieInteractor {
     func saveMovie(name: String) throws {
         try persistentStorageRepository.createMovie(name: name)
     }
+    
+    func getAllMovies() throws -> [Movie] {
+        try persistentStorageRepository.readAllMovies()
+    }
 }
