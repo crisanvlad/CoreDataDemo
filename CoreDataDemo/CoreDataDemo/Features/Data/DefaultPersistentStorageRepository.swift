@@ -36,20 +36,34 @@ final class DefaultPersistentStorageRepository: PersistentStorageRepository {
         // Create Movie entity on main thread MOC (i.e view context)
         let movie = Movie(context: persistentContainer.viewContext)
         movie.name = name
-        
-        do {
-            // Save Movie entity in Core Data
-            try persistentContainer.viewContext.save()
-            print("Movie saved successfully")
-        } catch {
-            // In case of error, discard current MOC
-            persistentContainer.viewContext.rollback()
-            throw error
-        }
+        try saveContext()
     }
     
     func readAllMovies() throws -> [Movie] {
         let movieFetchRequest: NSFetchRequest<Movie> = Movie.fetchRequest()
         return try persistentContainer.viewContext.fetch(movieFetchRequest)
+    }
+    
+    func deleteMovie(_ movie: Movie) throws {
+        // This works because the MOC has a reference to the movie instance (unique objectID)
+        persistentContainer.viewContext.delete(movie)
+        try saveContext()
+    }
+    
+    func deleteMovie(named: String) throws {
+        // Implement a way to delete a movie based on its ID
+    }
+    
+    // MARK: - Private methods
+    
+    private func saveContext() throws {
+        do {
+            // Save MOC changes to persistent storage
+            try persistentContainer.viewContext.save()
+        } catch {
+            // In case of error, discard current MOC changes
+            persistentContainer.viewContext.rollback()
+            throw error
+        }
     }
 }

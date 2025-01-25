@@ -44,6 +44,19 @@ final class MovieViewModel: ObservableObject {
         }
     }
     
+    func deleteMovie(atIndex offsets: IndexSet) {
+        let moviesToRemove = offsets.map { movies[$0] }
+        moviesToRemove.forEach { movie in
+            do {
+                try movieInteractor.deleteMovie(movie)
+                fetchAllMovies()
+            } catch {
+                self.error = error.localizedDescription
+            }
+        }
+        
+    }
+    
     // MARK: - Private Methods
     
     private func fetchAllMovies() {

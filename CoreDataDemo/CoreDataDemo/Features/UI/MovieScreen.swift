@@ -25,6 +25,7 @@ struct MovieScreen: View {
             addMovieView
                 .padding(.bottom, 30)
             listMoviesView
+            Spacer()
         }
         .padding()
     }
@@ -65,6 +66,9 @@ struct MovieScreen: View {
                         if let movieName = movie.name {
                             Text(movieName)
                         }
+                    }
+                    .onDelete { indexSet in
+                        viewModel.deleteMovie(atIndex: indexSet)
                     }
                 }
                 .listStyle(.plain)
