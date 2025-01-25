@@ -10,6 +10,7 @@ import Foundation
 protocol MovieInteractor {
     func saveMovie(name: String) throws
     func getAllMovies() throws -> [Movie]
+    func getMovies(named: String) -> [Movie]
     func deleteMovie(_ movie: Movie) throws
     func deleteMovies(_ movies: [Movie]) throws
 }

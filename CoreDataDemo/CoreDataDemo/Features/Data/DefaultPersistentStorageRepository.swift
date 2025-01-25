@@ -32,7 +32,7 @@ final class DefaultPersistentStorageRepository: PersistentStorageRepository {
     
     // MARK: - PersistentStorageRepository conformance
     
-    var persistenContainerViewCotnext: NSManagedObjectContext {
+    var persistentContainerViewCotnext: NSManagedObjectContext {
         persistentContainer.viewContext
     }
     
@@ -52,6 +52,15 @@ final class DefaultPersistentStorageRepository: PersistentStorageRepository {
     func readAllMovies() throws -> [Movie] {
         let movieFetchRequest: NSFetchRequest<Movie> = Movie.fetchRequest()
         return try persistentContainer.viewContext.fetch(movieFetchRequest)
+    }
+    
+    func readMovies(named: String) -> [Movie] {
+        let movieFetchRequest: NSFetchRequest<Movie> = Movie.fetchRequest()
+        let predicate = NSPredicate(format: "%K CONTAINS[cd] %@", #keyPath(Movie.name), named)
+        let sortDescriptor = NSSortDescriptor(keyPath: \Movie.name, ascending: true)
+        movieFetchRequest.predicate = predicate
+        movieFetchRequest.sortDescriptors = [sortDescriptor]
+        return (try? persistentContainer.viewContext.fetch(movieFetchRequest)) ?? []
     }
     
     func deleteMovie(_ movie: Movie) throws {

@@ -28,11 +28,14 @@ struct MovieScreen: View {
         VStack(alignment: .leading) {
             addMovieView
                 .padding(.bottom, 30)
+            Divider()
+                .padding(.bottom, 20)
             listMoviesView
             Spacer()
         }
         .padding()
         .navigationTitle("Movies")
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 if editMode == .active {
@@ -65,6 +68,10 @@ struct MovieScreen: View {
     
     private var addMovieView: some View {
         VStack(spacing: 20) {
+            Text("Add Movie")
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .font(.title2)
+                .padding(.bottom, 10)
             TextField("Type movie name", text: $viewModel.movieName)
                 .padding()
                 .background {
@@ -80,12 +87,13 @@ struct MovieScreen: View {
                 Text("Error: \(error)")
             }
         }
+        .searchable(text: $viewModel.searchedMovieName)
     }
     
     @ViewBuilder
     private var listMoviesView: some View {
         VStack(alignment: .leading) {
-            Text("Movies List")
+            Text("Display Movies List")
                 .font(.title2)
                 .padding(.bottom, 10)
             if viewModel.movies.isEmpty {

@@ -20,6 +20,11 @@ final class MovieViewModel: ObservableObject {
     
     @Published var selectedMovies: Set<Movie> = []
     @Published var error: String?
+    @Published var searchedMovieName = String()
+    
+    // MARK: - Private Properties
+    
+    private var searchSubscription: AnyCancellable?
     
     // MARK: - Dependencies
     
@@ -31,6 +36,7 @@ final class MovieViewModel: ObservableObject {
         movieInteractor: any MovieInteractor
     ) {
         self.movieInteractor = movieInteractor
+        subscribeToSearch()
         fetchAllMovies()
     }
     
@@ -77,6 +83,21 @@ final class MovieViewModel: ObservableObject {
     }
     
     // MARK: - Private Methods
+    
+    private func subscribeToSearch() {
+        searchSubscription = $searchedMovieName
+            .dropFirst()
+            .debounce(for: 0.25, scheduler: DispatchQueue.main)
+            .removeDuplicates()
+            .sink { [weak self] searchText in
+                guard let self else { return }
+                if searchText.isEmpty {
+                    fetchAllMovies()
+                } else {
+                    movies = movieInteractor.getMovies(named: searchText)
+                }
+            }
+    }
     
     private func fetchAllMovies() {
         do {
