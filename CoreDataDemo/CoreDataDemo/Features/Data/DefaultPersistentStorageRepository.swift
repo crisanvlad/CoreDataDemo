@@ -55,14 +55,28 @@ final class DefaultPersistentStorageRepository: PersistentStorageRepository {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
             guard let self else { return }
-            let _ = Movie.mockData(in: persistentContainerViewContext)
-            try? saveContext()
+            backgroundContext.perform {
+                let _ = Movie.mockData(in: self.backgroundContext)
+                do {
+                    try self.backgroundContext.save()
+                } catch {
+                    // In case of error, discard current MOC changes
+                    self.backgroundContext.rollback()
+//                    throw error
+                    print("Background Error :\(error)")
+                }
+            }
         }
     }
     
     func readAllMovies() throws -> [Movie] {
-        let movieFetchRequest: NSFetchRequest<Movie> = Movie.fetchRequest()
-        return try persistentContainer.viewContext.fetch(movieFetchRequest)
+        let bgndMovies = fetchMovies(releasedBefore: Date(), in: backgroundContext)
+        bgndMovies.forEach { movie in
+            print("ID: \(movie.id), ObjectID: \(movie.objectID)")
+        }
+        return []
+//        let movieFetchRequest: NSFetchRequest<Movie> = Movie.fetchRequest()
+//        return try persistentContainer.viewContext.fetch(movieFetchRequest)
     }
     
     func readMovies(named: String) -> [Movie] {
@@ -116,20 +130,20 @@ final class DefaultPersistentStorageRepository: PersistentStorageRepository {
         }
     }
     
-    func fetchToDoItems(dueBefore: Date, in context: NSManagedObjectContext, _ completion: @escaping ([Movie]) -> Void) {
+    func fetchMovies(releasedBefore: Date, in context: NSManagedObjectContext, _ completion: @escaping ([Movie]) -> Void) {
         context.perform {
             let request: NSFetchRequest<Movie> = Movie.fetchRequest()
-            request.predicate = NSPredicate(format: "%K < %@", #keyPath(Movie.releaseDate), dueBefore as NSDate)
+            request.predicate = NSPredicate(format: "%K < %@", #keyPath(Movie.releaseDate), releasedBefore as NSDate)
             let items = try? context.fetch(request)
             completion(items ?? [])
         }
     }
     
-    func fetchToDoItems(dueBefore: Date, in context: NSManagedObjectContext) -> [Movie] {
+    func fetchMovies(releasedBefore: Date, in context: NSManagedObjectContext) -> [Movie] {
         var items: [Movie]?
         context.performAndWait {
             let request: NSFetchRequest<Movie> = Movie.fetchRequest()
-            request.predicate = NSPredicate(format: "%K < %@", #keyPath(Movie.releaseDate), dueBefore as NSDate)
+            request.predicate = NSPredicate(format: "%K < %@", #keyPath(Movie.releaseDate), releasedBefore as NSDate)
             items = try? context.fetch(request)
         }
         return items ?? []
